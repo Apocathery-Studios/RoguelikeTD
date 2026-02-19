@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"   
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -31,7 +32,13 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
 }
 
 void ASCharacter::PostInitializeComponents()
@@ -70,9 +77,16 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 void ASCharacter::Move(const FInputActionValue& InValue)
 {
 	FVector2D InputValue = InValue.Get<FVector2D>();
-	FVector MoveDirection = FVector(InputValue.X, InputValue.Y, 0.0f);
 
-	AddMovementInput(MoveDirection);
+	FRotator ControlRot = GetControlRotation();
+	ControlRot.Pitch = 0.0f;
+	ControlRot.Roll = 0.0f;
+
+
+	AddMovementInput(ControlRot.Vector(), InputValue.X);
+
+	FVector RightDir = ControlRot.RotateVector(FVector::RightVector);
+	AddMovementInput(RightDir, InputValue.Y);
 }
 
 void ASCharacter::Look(const FInputActionInstance& InValue)
