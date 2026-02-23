@@ -22,10 +22,12 @@ ASCharacter::ASCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
 
-
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-
 	bUseControllerRotationYaw = false;
+
+	AbilitySystemComp = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComp->SetIsReplicated(true);
+	AbilitySystemComp->SetReplicationMode(ReplicationMode);
 }
 
 // Called when the game starts or when spawned
@@ -126,4 +128,27 @@ void ASCharacter::SprintStart()
 void ASCharacter::SprintStop()
 {
 	//ActionComp->StopActionByName(this, "Sprint");
+}
+
+// GAS Implementations
+
+UAbilitySystemComponent* ASCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComp;
+}
+
+void ASCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (AbilitySystemComp) {
+		AbilitySystemComp->InitAbilityActorInfo(this, this);
+	}
+}
+
+void ASCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	if (AbilitySystemComp) {
+		AbilitySystemComp->InitAbilityActorInfo(this, this);
+	}
 }
