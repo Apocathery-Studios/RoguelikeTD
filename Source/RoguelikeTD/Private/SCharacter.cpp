@@ -27,7 +27,7 @@ ASCharacter::ASCharacter()
 
 	AbilitySystemComp = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComp->SetIsReplicated(true);
-	AbilitySystemComp->SetReplicationMode(ReplicationMode);
+	AbilitySystemComp->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 }
 
 // Called when the game starts or when spawned
