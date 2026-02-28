@@ -154,24 +154,35 @@ void ASCharacter::OnRep_PlayerState()
 
 bool ASCharacter::TryGrantAbility(TSubclassOf<UGameplayAbility> AbilityClass)
 {
-	if (!GetAbilitySystemComponent() || !AbilityClass) return false;
+	if (!AbilitySystemComp || !AbilityClass) return false;
 
 	// Count currently held abilities
-	int32 ActiveCount = GetAbilitySystemComponent()->GetActivatableAbilities().Num();
+	int32 ActiveCount = AbilitySystemComp->GetActivatableAbilities().Num();
 
 	if (ActiveCount >= MaxActiveAbilities) return false;
 
 	// 1. Give the Ability
-	FGameplayAbilitySpecHandle NewHandle = GetAbilitySystemComponent()->GiveAbility(FGameplayAbilitySpec(AbilityClass));
+	FGameplayAbilitySpecHandle NewHandle = AbilitySystemComp->GiveAbility(FGameplayAbilitySpec(AbilityClass));
 
 	// 2. Fire the GAS Event instead of the Delegate
 	FGameplayEventData Payload;
 	Payload.Instigator = this;
 	Payload.OptionalObject = AbilityClass; // Pass the class so the UI knows what was added
 
-	GetAbilitySystemComponent()->HandleGameplayEvent(AbilitiesUpdateEventTag, &Payload);
+	AbilitySystemComp->HandleGameplayEvent(AbilitiesUpdateEventTag, &Payload);
 
 	return true;
+}
+
+void ASCharacter::TryCastAbilityBySlot(int Slot)
+{
+	if (!AbilitySystemComp) return;
+	TArray<FGameplayAbilitySpec>& Abilities = AbilitySystemComp->GetActivatableAbilities();
+	if (Abilities.IsValidIndex(Slot))
+	{
+		FGameplayAbilitySpec& Spec = Abilities[Slot];
+		AbilitySystemComp->TryActivateAbility(Spec.Handle);
+	}
 }
 
 

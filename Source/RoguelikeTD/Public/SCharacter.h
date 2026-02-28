@@ -83,6 +83,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem")
 	bool TryGrantAbility(TSubclassOf<UGameplayAbility> AbilityClass);
 
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystem")
+	void TryCastAbilityBySlot(int Slot);
+
 	UPROPERTY(EditDefaultsOnly, Category = "AbilitySystem")
 	FGameplayTag AbilitiesUpdateEventTag;
 
